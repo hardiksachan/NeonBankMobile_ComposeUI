@@ -2,13 +2,12 @@ package com.hardiksachan.neonbankmobile_composeui.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TextField
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,8 +20,26 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hardiksachan.neonbankmobile_composeui.BottomMenuContent
+import com.hardiksachan.neonbankmobile_composeui.Card
 import com.hardiksachan.neonbankmobile_composeui.R
+import com.hardiksachan.neonbankmobile_composeui.linearInclinedGradient
 import com.hardiksachan.neonbankmobile_composeui.ui.theme.*
+
+val cards = listOf<Card>(
+    Card(
+        2345,
+        "Debit Card",
+        1234,
+        Color(0xffe11218)
+    ),
+    Card(
+        1234,
+        "Credit Card",
+        23456,
+        Color(0xff000080)
+    )
+)
 
 @Composable
 fun HomeScreen() {
@@ -30,7 +47,7 @@ fun HomeScreen() {
         modifier = Modifier
             .fillMaxSize()
             .background(Black)
-            .padding(16.dp)
+            .padding(16.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxSize()
@@ -43,8 +60,204 @@ fun HomeScreen() {
             StatsSection(modifier = Modifier.padding(horizontal = 16.dp))
             Spacer(modifier = Modifier.height(48.dp))
             SearchBar(modifier = Modifier.padding(horizontal = 16.dp))
-            Spacer(modifier = Modifier.height(72.dp))
-            CardsSection()
+            Spacer(modifier = Modifier.height(48.dp))
+            CardsSection(cards = cards)
+        }
+        BottomBar(
+            items = listOf(
+                BottomMenuContent(R.drawable.ic_pie),
+                BottomMenuContent(R.drawable.ic_wallet),
+                BottomMenuContent(R.drawable.ic_chat)
+            ), modifier = Modifier.align(Alignment.BottomCenter)
+        )
+    }
+}
+
+@Composable
+fun BottomBar(
+    items: List<BottomMenuContent>,
+    modifier: Modifier = Modifier,
+    activeHighlightColor: Color = Red,
+    inactiveHighlightColor: Color = Color(0xff232323),
+    activeTextColor: Color = TextWhite,
+    inactiveTextColor: Color = GrayBrown,
+    initialSelectedItemIndex: Int = 1
+) {
+    var selectedItemIndex by remember {
+        mutableStateOf(initialSelectedItemIndex)
+    }
+    Row(
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        items.forEachIndexed { index, item ->
+            BottomMenuItem(
+                item = item,
+                isSelected = index == selectedItemIndex,
+                activeHighlightColor = activeHighlightColor,
+                inactiveHighlightColor = inactiveHighlightColor,
+                activeTextColor = activeTextColor,
+                inactiveTextColor = inactiveTextColor
+            ) {
+                selectedItemIndex = index
+            }
+        }
+    }
+}
+
+@Composable
+fun BottomMenuItem(
+    item: BottomMenuContent,
+    isSelected: Boolean = false,
+    activeHighlightColor: Color,
+    inactiveHighlightColor: Color,
+    activeTextColor: Color,
+    inactiveTextColor: Color,
+    onItemClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.clickable {
+            onItemClick()
+        }
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .clip(CircleShape)
+                .background(if (isSelected) activeHighlightColor else inactiveHighlightColor)
+                .padding(10.dp)
+        ) {
+            Icon(
+                painter = painterResource(id = item.icon),
+                contentDescription = "icon",
+                tint = if (isSelected) activeTextColor else inactiveTextColor,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+    }
+}
+
+
+@Composable
+fun CardsSection(
+    cards: List<Card>,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "MY CARDS",
+                style = Typography.h1
+            )
+            Divider(
+                color = GrayBrown.copy(alpha = 0.2f),
+                modifier = Modifier
+                    .height((0.5).dp)
+                    .fillMaxWidth(0.6f),
+
+                )
+            Image(
+                painter = painterResource(id = R.drawable.ic_plus),
+                contentDescription = "plus icon",
+                colorFilter = ColorFilter.tint(TextWhite),
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(32.dp),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            items(cards.size) { index ->
+                CardTile(cards[index])
+            }
+        }
+    }
+}
+
+@Composable
+fun CardTile(
+    card: Card
+) {
+    Surface(
+        elevation = 4.dp,
+        color = Color.Transparent
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .height(112.dp)
+                .background(
+                    linearInclinedGradient(
+                        GradientBlack,
+                        card.color,
+                    )
+                )
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Surface(
+                elevation = 8.dp,
+                color = Color.Transparent
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(0.4f)
+                        .fillMaxHeight(0.8f)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(
+                            linearInclinedGradient(
+                                Color(0xff151515),
+                                Black,
+                            )
+                        )
+                        .padding(8.dp)
+
+                ) {
+                    Text(
+                        text = "*  ${card.cardNumber}",
+                        style = Typography.body1
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = card.title,
+                    style = Typography.body1
+                )
+                Text(
+                    text = "$${card.amount}",
+                    style = TextStyle(
+                        color = GrayBrown,
+                        fontSize = 18.sp,
+                        fontFamily = yomogi
+                    ),
+                )
+            }
         }
     }
 }
@@ -103,7 +316,7 @@ fun StatsSection(
         Divider(
             color = GrayBrown.copy(alpha = 0.2f),
             modifier = Modifier
-                .width((0.3).dp)
+                .width((0.5).dp)
                 .fillMaxHeight(0.9f),
 
             )
@@ -168,7 +381,9 @@ fun SearchBar(
                     painter = painterResource(id = R.drawable.ic_search),
                     contentDescription = "Search Icon",
                     colorFilter = ColorFilter.tint(TextWhite.copy(alpha = 0.8f)),
-                    modifier = Modifier.padding(start = 16.dp).padding(12.dp)
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .size(16.dp)
                 )
             },
             placeholder = {
@@ -176,10 +391,4 @@ fun SearchBar(
             }
         )
     }
-}
-
-
-@Composable
-fun CardsSection() {
-
 }
