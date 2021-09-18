@@ -8,6 +8,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.hardiksachan.neonbankmobile_composeui.ui.HomeScreen
 import com.hardiksachan.neonbankmobile_composeui.ui.theme.NeonBankMobile_ComposeUITheme
 
 class MainActivity : ComponentActivity() {
@@ -15,6 +16,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             NeonBankMobile_ComposeUITheme {
+                HomeScreen()
             }
         }
     }
